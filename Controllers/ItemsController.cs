@@ -1,4 +1,5 @@
 using Catalog.Entities;
+using Catalog.Dtos;
 using Catalog.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,9 +18,16 @@ namespace Catalog.Controllers
 
 
     [HttpGet]
-    public IEnumerable<Item> GetItems()
+    public IEnumerable<ItemDto> GetItems()
     {
-      var items = repository.GetItems();
+      var items = repository.GetItems().Select(item => new ItemDto
+      {
+        Id = item.Id,
+        Name = item.Name,
+        Price = item.Price,
+        CreatedDate = item.CreatedDate
+      });
+
       return items;
     }
 
