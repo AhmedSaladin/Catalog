@@ -1,4 +1,5 @@
 using Catalog.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace Catalog.Repositories
@@ -11,35 +12,45 @@ namespace Catalog.Repositories
 
     private readonly IMongoCollection<Item> itemsCollection;
 
+    private readonly FilterDefinitionBuilder<Item> filterBuilder = Builders<Item>.Filter;
+
     public MongoDbItemsRepository(IMongoClient mongoClient)
     {
       IMongoDatabase database = mongoClient.GetDatabase(databaseName);
       itemsCollection = database.GetCollection<Item>(collectionName);
     }
 
-    void IItemsRepository.CreateItem(Item item)
+    public void CreateItem(Item item)
     {
       itemsCollection.InsertOne(item);
     }
 
-    void IItemsRepository.DeleteItem(Guid id)
+    public void DeleteItem(Guid id)
     {
-      throw new NotImplementedException();
+      var filter = Filter(id);
+      itemsCollection.FindOneAndDelete(filter);
     }
 
-    Item IItemsRepository.GetItem(Guid id)
+    public Item GetItem(Guid id)
     {
-      throw new NotImplementedException();
+      var filter = Filter(id);
+      return itemsCollection.Find(filter).SingleOrDefault();
     }
 
     IEnumerable<Item> IItemsRepository.GetItems()
     {
-      throw new NotImplementedException();
+      return itemsCollection.Find(new BsonDocument()).ToList();
     }
 
-    void IItemsRepository.UpdateItem(Item item)
+    public void UpdateItem(Item item)
     {
-      throw new NotImplementedException();
+      var filter = Filter(item.Id);
+      itemsCollection.ReplaceOne(filter, item);
+    }
+
+    private FilterDefinition<Item> Filter(Guid id)
+    {
+      return filterBuilder.Eq(item => item.Id, id);
     }
   }
 }
