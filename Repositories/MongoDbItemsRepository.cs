@@ -20,29 +20,29 @@ namespace Catalog.Repositories
       itemsCollection = database.GetCollection<Item>(collectionName);
     }
 
-    public void CreateItem(Item item)
+    public void CreateItemAsync(Item item)
     {
       itemsCollection.InsertOne(item);
     }
 
-    public void DeleteItem(Guid id)
+    public void DeleteItemAsync(Guid id)
     {
       var filter = Filter(id);
       itemsCollection.FindOneAndDelete(filter);
     }
 
-    public Item GetItem(Guid id)
+    public Item GetItemAsync(Guid id)
     {
       var filter = Filter(id);
       return itemsCollection.Find(filter).SingleOrDefault();
     }
 
-    IEnumerable<Item> IItemsRepository.GetItems()
+    IEnumerable<Item> IItemsRepository.GetItemsAsync()
     {
       return itemsCollection.Find(new BsonDocument()).ToList();
     }
 
-    public void UpdateItem(Item item)
+    public void UpdateItemAsync(Item item)
     {
       var filter = Filter(item.Id);
       itemsCollection.ReplaceOne(filter, item);
