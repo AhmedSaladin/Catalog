@@ -20,32 +20,32 @@ namespace Catalog.Repositories
       itemsCollection = database.GetCollection<Item>(collectionName);
     }
 
-    public void CreateItemAsync(Item item)
+    public async Task CreateItemAsync(Item item)
     {
-      itemsCollection.InsertOne(item);
+      await itemsCollection.InsertOneAsync(item);
     }
 
-    public void DeleteItemAsync(Guid id)
-    {
-      var filter = Filter(id);
-      itemsCollection.FindOneAndDelete(filter);
-    }
-
-    public Item GetItemAsync(Guid id)
+    public async Task DeleteItemAsync(Guid id)
     {
       var filter = Filter(id);
-      return itemsCollection.Find(filter).SingleOrDefault();
+      await itemsCollection.FindOneAndDeleteAsync(filter);
     }
 
-    IEnumerable<Item> IItemsRepository.GetItemsAsync()
+    public async Task<Item> GetItemAsync(Guid id)
     {
-      return itemsCollection.Find(new BsonDocument()).ToList();
+      var filter = Filter(id);
+      return await itemsCollection.Find(filter).SingleOrDefaultAsync();
     }
 
-    public void UpdateItemAsync(Item item)
+    public async Task<IEnumerable<Item>> GetItemsAsync()
+    {
+      return await itemsCollection.Find(new BsonDocument()).ToListAsync();
+    }
+
+    public async Task UpdateItemAsync(Item item)
     {
       var filter = Filter(item.Id);
-      itemsCollection.ReplaceOne(filter, item);
+      await itemsCollection.ReplaceOneAsync(filter, item);
     }
 
     private FilterDefinition<Item> Filter(Guid id)
